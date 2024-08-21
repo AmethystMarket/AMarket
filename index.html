@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarklets</title>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            display: none; /* Hide content initially */
+        }
+    </style>
+</head>
+<body>
+    <div id="passwordPrompt">
+        <h1>Enter Password</h1>
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button onclick="checkPassword()">Submit</button>
+        <p id="errorMessage" style="color: red;"></p>
+    </div>
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo" class="logo">
+    </div>
+    <div class="container" id="contentContainer">
+        <h1>𝔸𝕄𝕒𝕣𝕜𝕝𝕖𝕥</h1>
+        <p>Drag the bookmarklets below to your bookmarks bar.</p>
+        <!-- Steal HTML -->
+        <a href="javascript:(function(){
+            var blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = document.title + '.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        })();">Steal .HTML</a>
+        <!-- Steal CSS -->
+        <a href="javascript:(function(){
+            var links = document.querySelectorAll('link[rel=stylesheet]');
+            var cssFiles = [];
+            var fileList = '';
+
+            links.forEach(function(link, index) {
+                cssFiles.push({index: index, url: link.href});
+            });
+
+            var promises = cssFiles.map(function(cssFile) {
+                return fetch(cssFile.url)
+                    .then(function(response) {
+                        return response.blob();
+                    })
+                    .then(function(blob) {
+                        var a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'style-' + cssFile.index + '.css';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
+            });
+
+            Promise.all(promises).then(function() {
+                var noteContent = cssFiles.map(function(cssFile) {
+                    var filename = cssFile.url.split('/').pop();
+                    return 'style-' + cssFile.index + '.css = ' + filename;
+                }).join('\n');
+
+                var noteBlob = new Blob([noteContent], {type: 'text/plain'});
+                var noteA = document.createElement('a');
+                noteA.href = URL.createObjectURL(noteBlob);
+                noteA.download = 'stylecss.txt';
+                document.body.appendChild(noteA);
+                noteA.click();
+                document.body.removeChild(noteA);
+            }).catch(function(error) {
+                console.error('Error fetching CSS:', error);
+            });
+        })();">Steal .CSS</a>
+    </div>
+
+    <script>
+        const correctPassword = 'AMETHYST23456'; // Change this to your password
+
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            if (passwordInput === correctPassword) {
+                document.getElementById('passwordPrompt').style.display = 'none';
+                document.getElementById('contentContainer').style.display = 'block';
+            } else {
+                errorMessage.textContent = 'Incorrect password, please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
